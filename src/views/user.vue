@@ -1,16 +1,19 @@
 <template>
 <div>
+    <Button type="primary" @click="addData" style="margin-right:10px">添加数据</Button>
+    <Button type="error" @click="removesData">删除多条</Button>
+    <Input search v-model="name" placeholder="请输入关键字" @on-search="searchData"/>
     <Table border :columns="columns" :data="Listdata"></Table>
     <br>
     <Page :total="total" show-elevator show-sizer  show-total :page-size-opts="[5,10,20,30,40,50]"
     @on-change='pageChange' @on-page-size-change='pagesizeChange' />
-    <Modal v-model="modal" title="确认对话框">
+    <Modal v-model="modal" title="Common Modal dialog box title">
         <!-- @on-ok="ok" @on-cancel="cancel" -->
-       <Form :model="formItem" :rules="ruleValidate" :label-width="80">
+       <!-- <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
             <FormItem label="name">
                 <Input v-model="formItem.name" placeholder="姓名"></Input>
             </FormItem>
-            <!-- <FormItem label="age">
+            <FormItem label="age">
                 <Input v-model="formItem.age" placeholder="年龄"></Input>
             </FormItem>
             <Row><Col span="11">
@@ -39,12 +42,12 @@
                     <Checkbox label="玩"></Checkbox>
                     <Checkbox label="电影"></Checkbox>
                 </CheckboxGroup>
-            </FormItem> -->
+            </FormItem>
             <FormItem>
                 <Button type="primary">Submit</Button>
                 <Button style="margin-left: 8px">Cancel</Button>
             </FormItem>
-        </Form>
+        </Form> -->
     </Modal>
 </div>
 </template>
@@ -53,8 +56,8 @@
         data () {
             return {
                 formValidate: {
-                    name:'',
-                    age:'',
+                    name:'111',
+                    /* age:'',
                     birthday:'',
                     tel:'',
                     card:'',
@@ -63,15 +66,15 @@
                     address:'',
                     sex:'',
                     know:'',
-                    time:''
+                    time:'' */
                 },
                 ruleValidate:{
                     name: [
                         { required: true, message: 'The name cannot be empty', trigger: 'blur' }
                     ],
-                    age: [
+                    /* age: [
                         { required: true, message: 'age cannot be empty', trigger: 'blur' },
-                    ],
+                    ], */
                 },
                 columns: [
                     {
@@ -163,6 +166,7 @@
             }
         },
         methods: {
+        //获取数据
             getData(){
                 this.axios({
                     url:'http://211.159.182.250:3000/users/list',
@@ -179,14 +183,20 @@
                     this.Listdata=res.data.rows
                 });
             },
-            pageChange(page){
+            pageChange(page){//页数变化
                 this.page = page;
                 this.getData();
             },
-            pagesizeChange(rows){
+            pagesizeChange(rows){//每页显示条数
                 this.rows=rows;
                 this.getData();
             },
+        //添加数据
+            addData(){
+                console.log('添加数据');
+                this.modal=true;
+            },
+        //修改数据
             updateData(id){
                 console.log(id);
             },
@@ -213,6 +223,14 @@
                     } *///确认对话框取消框回调
                 })
             },
+        //删除多条数局
+            removesData(){
+                console.log("删除多条")
+            },
+        //搜索数据
+            searchData(){
+                console.log('搜索数据')
+            }
             /* ok () {
                 this.$Message.info('Clicked ok');
             },
