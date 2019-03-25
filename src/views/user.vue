@@ -9,34 +9,45 @@
     @on-change='pageChange' @on-page-size-change='pagesizeChange' />
     <Modal v-model="modal" title="Common Modal dialog box title">
         <!-- @on-ok="ok" @on-cancel="cancel" -->
-       <!-- <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
-            <FormItem label="name">
-                <Input v-model="formItem.name" placeholder="姓名"></Input>
-            </FormItem>
-            <FormItem label="age">
-                <Input v-model="formItem.age" placeholder="年龄"></Input>
-            </FormItem>
-            <Row><Col span="11">
-                <FormItem label="birthday">
-                    <DatePicker type="date" placeholder="出生日期" v-model="formItem.birthday"></DatePicker>
-                </FormItem>
+        <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
+            <Row>
+                <Col span="11">
+                    <FormItem label="name">
+                        <Input v-model="formValidate.name" placeholder="姓名"></Input>
+                    </FormItem>
+                </Col>
                 <Col span="2" style="text-align: center"></Col>
-                <FormItem label="sex">
-                    <RadioGroup v-model="formItem.sex">
-                        <Radio label="male">男</Radio>
-                        <Radio label="female">女</Radio>
-                    </RadioGroup>
-                </FormItem>
-            </Col></Row>
+                <Col span="11">
+                    <FormItem label="age">
+                        <Input v-model="formValidate.age" placeholder="年龄"></Input>
+                    </FormItem>
+                </Col>   
+            </Row>             
+            <Row>
+                <Col span="11">
+                    <FormItem label="birthday">
+                        <DatePicker type="date" placeholder="出生日期" v-model="formValidate.birthday"></DatePicker>
+                    </FormItem>
+                </Col>
+                <Col span="2" style="text-align: center"></Col>
+                <Col span="11">
+                    <FormItem label="sex">
+                        <RadioGroup v-model="formValidate.sex">
+                            <Radio label="male">男</Radio>
+                            <Radio label="female">女</Radio>
+                        </RadioGroup>
+                    </FormItem>
+                </Col>
+            </Row>
             <FormItem label="address">
-                <Select v-model="formItem.address">
+                <Select v-model="formValidate.address">
                     <Option value="beijing">New York</Option>
                     <Option value="shanghai">London</Option>
                     <Option value="shenzhen">Sydney</Option>
                 </Select>
             </FormItem>
             <FormItem label="interest">
-                <CheckboxGroup v-model="formItem.interest">
+                <CheckboxGroup v-model="formValidate.interest">
                     <Checkbox label="吃"></Checkbox>
                     <Checkbox label="睡"></Checkbox>
                     <Checkbox label="玩"></Checkbox>
@@ -47,7 +58,7 @@
                 <Button type="primary">Submit</Button>
                 <Button style="margin-left: 8px">Cancel</Button>
             </FormItem>
-        </Form> -->
+        </Form>
     </Modal>
 </div>
 </template>
