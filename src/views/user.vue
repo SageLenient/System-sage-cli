@@ -8,38 +8,38 @@
         <!-- @on-ok="ok" @on-cancel="cancel" -->
        <Form :model="formItem" :rules="ruleValidate" :label-width="80">
             <FormItem label="name">
-                <Input v-model="formItem.name" placeholder="Enter something..."></Input>
+                <Input v-model="formItem.name" placeholder="姓名"></Input>
             </FormItem>
-            <FormItem label="name">
-                <Input v-model="formItem.name" placeholder="Enter something..."></Input>
+            <!-- <FormItem label="age">
+                <Input v-model="formItem.age" placeholder="年龄"></Input>
             </FormItem>
             <Row><Col span="11">
                 <FormItem label="birthday">
                     <DatePicker type="date" placeholder="出生日期" v-model="formItem.birthday"></DatePicker>
                 </FormItem>
                 <Col span="2" style="text-align: center"></Col>
-                <FormItem label="Radio">
-                    <RadioGroup v-model="formItem.radio">
+                <FormItem label="sex">
+                    <RadioGroup v-model="formItem.sex">
                         <Radio label="male">男</Radio>
                         <Radio label="female">女</Radio>
                     </RadioGroup>
                 </FormItem>
             </Col></Row>
-            <FormItem label="Select">
-                <Select v-model="formItem.select">
+            <FormItem label="address">
+                <Select v-model="formItem.address">
                     <Option value="beijing">New York</Option>
                     <Option value="shanghai">London</Option>
                     <Option value="shenzhen">Sydney</Option>
                 </Select>
             </FormItem>
-            <FormItem label="Checkbox">
-                <CheckboxGroup v-model="formItem.checkbox">
-                    <Checkbox label="Eat"></Checkbox>
-                    <Checkbox label="Sleep"></Checkbox>
-                    <Checkbox label="Run"></Checkbox>
-                    <Checkbox label="Movie"></Checkbox>
+            <FormItem label="interest">
+                <CheckboxGroup v-model="formItem.interest">
+                    <Checkbox label="吃"></Checkbox>
+                    <Checkbox label="睡"></Checkbox>
+                    <Checkbox label="玩"></Checkbox>
+                    <Checkbox label="电影"></Checkbox>
                 </CheckboxGroup>
-            </FormItem>
+            </FormItem> -->
             <FormItem>
                 <Button type="primary">Submit</Button>
                 <Button style="margin-left: 8px">Cancel</Button>
