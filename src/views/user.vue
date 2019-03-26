@@ -350,7 +350,7 @@
             },
         //搜索数据
             searchData(){
-                console.log('搜索数据')
+                this.getData();
             }
             /* ok () {
                 this.$Message.info('Clicked ok');
