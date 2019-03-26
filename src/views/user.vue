@@ -12,26 +12,26 @@
         <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
             <Row>
                 <Col span="11">
-                    <FormItem label="name">
+                    <FormItem label="姓名" prop="name">
                         <Input v-model="formValidate.name" placeholder="姓名"></Input>
                     </FormItem>
                 </Col>
                 <Col span="2" style="text-align: center"></Col>
                 <Col span="11">
-                    <FormItem label="age">
+                    <FormItem label="年龄" prop="age">
                         <Input v-model="formValidate.age" placeholder="年龄"></Input>
                     </FormItem>
                 </Col>   
             </Row>             
             <Row>
                 <Col span="11">
-                    <FormItem label="birthday">
+                    <FormItem label="出生日期" prop="birthday">
                         <DatePicker type="date" placeholder="出生日期" v-model="formValidate.birthday"></DatePicker>
                     </FormItem>
                 </Col>
                 <Col span="2" style="text-align: center"></Col>
                 <Col span="11">
-                    <FormItem label="sex">
+                    <FormItem label="性别" prop="sex">
                         <RadioGroup v-model="formValidate.sex">
                             <Radio label="male">男</Radio>
                             <Radio label="female">女</Radio>
@@ -39,14 +39,20 @@
                     </FormItem>
                 </Col>
             </Row>
-            <FormItem label="address">
+            <FormItem label="电话号码" prop="tel">
+                <Input v-model="formValidate.tel" placeholder="电话号码"></Input>
+            </FormItem>
+            <FormItem label="身份证号" prop="card">
+                <Input v-model="formValidate.card" placeholder="身份证号"></Input>
+            </FormItem>
+            <FormItem label="住址" prop="address">
                 <Select v-model="formValidate.address">
-                    <Option value="beijing">New York</Option>
-                    <Option value="shanghai">London</Option>
-                    <Option value="shenzhen">Sydney</Option>
+                    <Option value="china">中国</Option>
+                    <Option value="world">世界</Option>
+                    <Option value="universe">宇宙</Option>
                 </Select>
             </FormItem>
-            <FormItem label="interest">
+            <FormItem label="兴趣爱好" prop='interest'>
                 <CheckboxGroup v-model="formValidate.interest">
                     <Checkbox label="吃"></Checkbox>
                     <Checkbox label="睡"></Checkbox>
@@ -54,9 +60,15 @@
                     <Checkbox label="电影"></Checkbox>
                 </CheckboxGroup>
             </FormItem>
+            <FormItem label="了解我们" prop='know'>
+                <RadioGroup v-model="formValidate.know">
+                    <Radio label="know">了解</Radio>
+                    <Radio label="unknow">不了解</Radio>
+                </RadioGroup>
+            </FormItem>
             <FormItem>
-                <Button type="primary">Submit</Button>
-                <Button style="margin-left: 8px">Cancel</Button>
+                <Button type="primary" @click="handleSubmit('formValidate')">提交</Button>
+                <Button style="margin-left: 8px" @click="handleReset('formValidate')">重置</Button>
             </FormItem>
         </Form>
     </Modal>
@@ -67,25 +79,52 @@
         data () {
             return {
                 formValidate: {
-                    name:'111',
-                    /* age:'',
+                    name:'',
+                    age:'',
                     birthday:'',
                     tel:'',
                     card:'',
                     email:'',
-                    interest:'',
+                    interest:[],
                     address:'',
                     sex:'',
                     know:'',
-                    time:'' */
+                    time:''
                 },
                 ruleValidate:{
                     name: [
-                        { required: true, message: 'The name cannot be empty', trigger: 'blur' }
+                        { required: true, message: '不能为空', trigger: 'blur' }
                     ],
-                    /* age: [
-                        { required: true, message: 'age cannot be empty', trigger: 'blur' },
-                    ], */
+                    age: [
+                        { required: true, message: '不能为空', trigger: 'blur' },
+                    ],
+                    tel: [
+                        { required: true, message: '不能为空', trigger: 'blur' },
+                    ],
+                    card: [
+                        { required: true, message: '不能为空', trigger: 'blur' },
+                    ],
+                    mail: [
+                        { required: true, message: '不能为空', trigger: 'blur' },
+                        { type: 'email', message: '格式非法', trigger: 'blur' }
+                    ],
+                    address: [
+                        { required: true, message: '请选择住址', trigger: 'change' }
+                    ],
+                    sex: [
+                        { required: true, message: '请选择性别', trigger: 'change' }
+                    ],
+                    interest: [
+                        { required: true, type: 'array', min: 1, message: '选择爱好', trigger: 'change' },
+                        { type: 'array', max: 2, message: 'Choose two hobbies at best', trigger: 'change' }
+                    ],
+                    birthday: [
+                        { required: true, type: 'date', message: '请选择出生日期', trigger: 'change' }
+                    ],
+                    know: [
+                        { required: true, message: '是否了解我们？', trigger: 'change' }
+                    ],
+                    
                 },
                 columns: [
                     {
@@ -204,8 +243,22 @@
             },
         //添加数据
             addData(){
-                console.log('添加数据');
                 this.modal=true;
+            },
+        //表单提交验证
+            handleSubmit (name) {
+                this.$refs[name].validate((valid) => {
+                    console.log('1');
+                    if (valid) {
+                        this.$Message.success('提交成功!');
+                    } else {
+                        this.$Message.error('提交失败!');
+                    }
+                })
+            },
+        //重置清除表单
+            handleReset (name) {
+                this.$refs[name].resetFields();
             },
         //修改数据
             updateData(id){
