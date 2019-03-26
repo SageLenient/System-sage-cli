@@ -39,9 +39,19 @@
                     </FormItem>
                 </Col>
             </Row>
-            <FormItem label="电话号码" prop="tel">
-                <Input v-model="formValidate.tel" placeholder="电话号码"></Input>
-            </FormItem>
+            <Row>
+                <Col span="11">
+                    <FormItem label="电话号码" prop="tel">
+                        <Input v-model="formValidate.tel" placeholder="电话号码"></Input>
+                    </FormItem>
+                </Col>
+                <Col span="2" style="text-align: center"></Col>
+                <Col span="11">
+                    <FormItem label="email" prop="email">
+                        <Input v-model="formValidate.email" placeholder="邮箱地址"></Input>
+                    </FormItem>
+                </Col>
+            </Row>
             <FormItem label="身份证号" prop="card">
                 <Input v-model="formValidate.card" placeholder="身份证号"></Input>
             </FormItem>
@@ -53,17 +63,12 @@
                 </Select>
             </FormItem>
             <FormItem label="兴趣爱好" prop='interest'>
-                <CheckboxGroup v-model="formValidate.interest">
-                    <Checkbox label="吃"></Checkbox>
-                    <Checkbox label="睡"></Checkbox>
-                    <Checkbox label="玩"></Checkbox>
-                    <Checkbox label="电影"></Checkbox>
-                </CheckboxGroup>
+                <Input v-model="formValidate.interest" placeholder="兴趣爱好"></Input>
             </FormItem>
             <FormItem label="了解我们" prop='know'>
                 <RadioGroup v-model="formValidate.know">
-                    <Radio label="know">了解</Radio>
-                    <Radio label="unknow">不了解</Radio>
+                    <Radio label="true">了解</Radio>
+                    <Radio label="false">不了解</Radio>
                 </RadioGroup>
             </FormItem>
             <FormItem>
@@ -85,7 +90,7 @@
                     tel:'',
                     card:'',
                     email:'',
-                    interest:[],
+                    interest:'',
                     address:'',
                     sex:'',
                     know:'',
@@ -104,7 +109,7 @@
                     card: [
                         { required: true, message: '不能为空', trigger: 'blur' },
                     ],
-                    mail: [
+                    email: [
                         { required: true, message: '不能为空', trigger: 'blur' },
                         { type: 'email', message: '格式非法', trigger: 'blur' }
                     ],
@@ -115,8 +120,7 @@
                         { required: true, message: '请选择性别', trigger: 'change' }
                     ],
                     interest: [
-                        { required: true, type: 'array', min: 1, message: '选择爱好', trigger: 'change' },
-                        { type: 'array', max: 2, message: 'Choose two hobbies at best', trigger: 'change' }
+                        { required: true, message: '选择爱好', trigger: 'change' },
                     ],
                     birthday: [
                         { required: true, type: 'date', message: '请选择出生日期', trigger: 'change' }
@@ -248,8 +252,17 @@
         //表单提交验证
             handleSubmit (name) {
                 this.$refs[name].validate((valid) => {
-                    console.log('1');
                     if (valid) {
+                    //添加数据
+                        this.axios({
+                            url   : `http://211.159.182.250:3000/users`,
+                            method: 'post',
+                            data  : this.formValidate
+                        }).then(res=>{
+                            this.$Message.success('添加数据成功!');
+                            this.modal = false;
+                            this.getData();
+                        });
                         this.$Message.success('提交成功!');
                     } else {
                         this.$Message.error('提交失败!');
@@ -262,7 +275,7 @@
             },
         //修改数据
             updateData(id){
-                console.log(id);
+                this.modal=true;
             },
 
         //删除单条数据
