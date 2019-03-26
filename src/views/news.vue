@@ -27,7 +27,7 @@
         methods: {
             getData(){
                 this.axios({
-                    url:'http://211.159.182.250:3000/news/list',
+                    url:'http://localhost:3000/news/list',
                     method:'post'
                 }).then(res=>{
                    

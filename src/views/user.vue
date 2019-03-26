@@ -3,7 +3,7 @@
     <Button type="primary" @click="addData" style="margin-right:10px">添加数据</Button>
     <Button type="error" @click="removesData">删除多条</Button>
     <Input search v-model="name" placeholder="请输入关键字" @on-search="searchData"/>
-    <Table border :columns="columns" :data="Listdata"></Table>
+    <Table border :columns="columns" ref="selection" :data="Listdata" @on-selection-change="onSelectionChange"></Table>
     <br>
     <Page :total="total" show-elevator show-sizer  show-total :page-size-opts="[5,10,20,30,40,50]"
     @on-change='pageChange' @on-page-size-change='pagesizeChange' />
@@ -33,8 +33,8 @@
                 <Col span="11">
                     <FormItem label="性别" prop="sex">
                         <RadioGroup v-model="formValidate.sex">
-                            <Radio label="male">男</Radio>
-                            <Radio label="female">女</Radio>
+                            <Radio label="男">男</Radio>
+                            <Radio label="女">女</Radio>
                         </RadioGroup>
                     </FormItem>
                 </Col>
@@ -56,20 +56,20 @@
                 <Input v-model="formValidate.card" placeholder="身份证号"></Input>
             </FormItem>
             <FormItem label="住址" prop="address">
-                <Select v-model="formValidate.address">
-                    <Option value="china">中国</Option>
-                    <Option value="world">世界</Option>
-                    <Option value="universe">宇宙</Option>
-                </Select>
+                <Input v-model="formValidate.address" placeholder="家庭住址"></Input>
             </FormItem>
             <FormItem label="兴趣爱好" prop='interest'>
                 <Input v-model="formValidate.interest" placeholder="兴趣爱好"></Input>
             </FormItem>
             <FormItem label="了解我们" prop='know'>
-                <RadioGroup v-model="formValidate.know">
+                <!-- <RadioGroup v-model="formValidate.know">
                     <Radio label="true">了解</Radio>
                     <Radio label="false">不了解</Radio>
-                </RadioGroup>
+                </RadioGroup> -->
+                <i-switch v-model="formValidate.know" size="large">
+                    <span slot="open">Yes</span>
+                    <span slot="close">No</span>
+                </i-switch>
             </FormItem>
             <FormItem>
                 <Button type="primary" @click="handleSubmit('formValidate')">提交</Button>
@@ -93,7 +93,7 @@
                     interest:'',
                     address:'',
                     sex:'',
-                    know:'',
+                    know:true,
                     time:''
                 },
                 ruleValidate:{
@@ -101,10 +101,10 @@
                         { required: true, message: '不能为空', trigger: 'blur' }
                     ],
                     age: [
-                        { required: true, message: '不能为空', trigger: 'blur' },
+                        { required: true,type:'number', message: '不能为空', trigger: 'blur' },
                     ],
                     tel: [
-                        { required: true, message: '不能为空', trigger: 'blur' },
+                        { required: true, type:'number', message: '不能为空', trigger: 'blur' },
                     ],
                     card: [
                         { required: true, message: '不能为空', trigger: 'blur' },
@@ -114,7 +114,7 @@
                         { type: 'email', message: '格式非法', trigger: 'blur' }
                     ],
                     address: [
-                        { required: true, message: '请选择住址', trigger: 'change' }
+                        { required: true, message: '请填写住址', trigger: 'change' }
                     ],
                     sex: [
                         { required: true, message: '请选择性别', trigger: 'change' }
@@ -125,12 +125,13 @@
                     birthday: [
                         { required: true, type: 'date', message: '请选择出生日期', trigger: 'change' }
                     ],
-                    know: [
-                        { required: true, message: '是否了解我们？', trigger: 'change' }
-                    ],
-                    
                 },
                 columns: [
+                    {
+                        type: 'selection',
+                        width: 50,
+                        align: 'center'
+                    },
                     {
                         title: '用户名',
                         key: 'name'
@@ -213,17 +214,18 @@
                 modal:false,
                 Listdata: [],
                 total:0,
-                page    : 1,
-                rows    : 10,
-                name    :'',
-                id:''
+                page:1,
+                rows:10,
+                name:'',
+                id:'',
+                ids:[]
             }
         },
         methods: {
         //获取数据
             getData(){
                 this.axios({
-                    url:'http://211.159.182.250:3000/users/list',
+                    url:'http://localhost:3000/users/list',
                     method:'post',
                     data:{
                         page: this.page,
@@ -253,17 +255,30 @@
             handleSubmit (name) {
                 this.$refs[name].validate((valid) => {
                     if (valid) {
-                    //添加数据
-                        this.axios({
-                            url   : `http://211.159.182.250:3000/users`,
-                            method: 'post',
-                            data  : this.formValidate
-                        }).then(res=>{
-                            this.$Message.success('添加数据成功!');
-                            this.modal = false;
-                            this.getData();
-                        });
-                        this.$Message.success('提交成功!');
+                        if(this.formValidate._id && this.formValidate._id.trim().length>0){
+                        //修改数据
+                            this.axios({
+                                url   : `http://localhost:3000/users/${this.formValidate._id}`,
+                                method: 'put',
+                                data  : this.formValidate
+                            }).then(res=>{
+                                this.$Message.success('修改数据成功!');
+                                this.modal = false;
+                                this.getData();
+                            })
+                        }else{
+                        //添加数据
+                            this.axios({
+                                url   : `http://localhost:3000/users`,
+                                method: 'post',
+                                data  : this.formValidate
+                            }).then(res=>{
+                                this.$Message.success('添加数据成功!');
+                                this.modal = false;
+                                this.getData();
+                            });
+                            this.$Message.success('提交成功!');
+                        }
                     } else {
                         this.$Message.error('提交失败!');
                     }
@@ -275,9 +290,14 @@
             },
         //修改数据
             updateData(id){
-                this.modal=true;
+                this.axios({
+                    url   : `http://localhost:3000/users/${id}`,
+                    method: 'get',
+                }).then(res=>{
+                    this.formValidate = res.data;
+                    this.modal = true;
+                })
             },
-
         //删除单条数据
             removeData(id){
                 this.$Modal.confirm({
@@ -285,7 +305,7 @@
                     content:'<p>你确定删除吗？</p>',
                     onOk: () => {
                         this.axios({
-                            url:`http://211.159.182.250:3000/users/${id}`,
+                            url:`http://localhost:3000/users/${id}`,
                             method:'delete',
                             data:{
                                 id:id
@@ -300,9 +320,33 @@
                     } *///确认对话框取消框回调
                 })
             },
+        //
+            onSelectionChange(selection){
+                var selectionLen = selection.length;
+                if(selectionLen>0){
+                    for(let i=0;i<selectionLen;i++){
+                        this.ids.push(selection[i]._id);
+                    }
+                }
+            },
         //删除多条数局
             removesData(){
-                console.log("删除多条")
+                this.$Modal.confirm({
+                    title:"确认对话框",
+                    content:'<p>你确定删除吗？</p>',
+                    onOk: () => {
+                        this.axios({
+                            url:`http://localhost:3000/users/removes`,
+                            method:'post',
+                            data:{
+                                ids:this.ids.toString()
+                            }
+                        }).then(res=>{
+                            this.getData();
+                            this.$Message.info('删除成功');
+                        })
+                    }
+                })
             },
         //搜索数据
             searchData(){
