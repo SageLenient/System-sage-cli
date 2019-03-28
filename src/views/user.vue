@@ -7,7 +7,7 @@
     <br>
     <Page :total="total" show-elevator show-sizer  show-total :page-size-opts="[5,10,20,30,40,50]"
     @on-change='pageChange' @on-page-size-change='pagesizeChange' />
-    <Modal v-model="modal" title="Common Modal dialog box title">
+    <Modal v-model="modal" :title="changeTitle">
         <!-- @on-ok="ok" @on-cancel="cancel" -->
         <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
             <Row>
@@ -19,7 +19,7 @@
                 <Col span="2" style="text-align: center"></Col>
                 <Col span="11">
                     <FormItem label="年龄" prop="age">
-                        <Input v-model="formValidate.age" placeholder="年龄"></Input>
+                        <Input v-model="formValidate.age" placeholder="年龄" number></Input>
                     </FormItem>
                 </Col>   
             </Row>             
@@ -42,7 +42,7 @@
             <Row>
                 <Col span="11">
                     <FormItem label="电话号码" prop="tel">
-                        <Input v-model="formValidate.tel" placeholder="电话号码"></Input>
+                        <Input v-model="formValidate.tel" placeholder="电话号码" number></Input>
                     </FormItem>
                 </Col>
                 <Col span="2" style="text-align: center"></Col>
@@ -62,13 +62,9 @@
                 <Input v-model="formValidate.interest" placeholder="兴趣爱好"></Input>
             </FormItem>
             <FormItem label="了解我们" prop='know'>
-                <!-- <RadioGroup v-model="formValidate.know">
-                    <Radio label="true">了解</Radio>
-                    <Radio label="false">不了解</Radio>
-                </RadioGroup> -->
                 <i-switch v-model="formValidate.know" size="large">
-                    <span slot="open">Yes</span>
-                    <span slot="close">No</span>
+                    <span slot="open">是</span>
+                    <span slot="close">否</span>
                 </i-switch>
             </FormItem>
             <FormItem>
@@ -80,7 +76,9 @@
 </div>
 </template>
 <script>
+    import  { Base } from '../mixins/base'
     export default {
+        mixins:[Base],
         data () {
             return {
                 formValidate: {
@@ -101,10 +99,10 @@
                         { required: true, message: '不能为空', trigger: 'blur' }
                     ],
                     age: [
-                        { required: true,type:'number', message: '不能为空', trigger: 'blur' },
+                        { required: true,type: 'number', message: '不能为空', trigger: 'blur' },
                     ],
                     tel: [
-                        { required: true, type:'number', message: '不能为空', trigger: 'blur' },
+                        { required: true,type: 'number', message: '不能为空', trigger: 'blur' },
                     ],
                     card: [
                         { required: true, message: '不能为空', trigger: 'blur' },
@@ -134,15 +132,22 @@
                     },
                     {
                         title: '用户名',
+                        width:80,
                         key: 'name'
                     },
                     {
                         title: '年龄',
+                        width: 65,
                         key: 'age'
                     },
                     {
                         title: '出生日期',
-                        key: 'birthday'
+                        key: 'birthday',
+                        render: (h, params) => {
+                            return h('div', [
+                                h('span', this.$moment(params.row.birthday).format('YYYY-MM-DD'))
+                            ]);
+                        }
                     },
                     {
                         title: '电话号码',
@@ -166,14 +171,27 @@
                     },
                     {
                         title: '性别',
+                        width: 65,
                         key: 'sex'
                     },
                     {
-                        title: '是否了解',
-                        key: 'know'
+                        title: '了解',
+                        width: 65,
+                        key: 'know',
+                        render: (h, params) => {
+                            var yesNo=params.row.know==true?'是':'否';
+                            return h('div', [
+                                h('span', yesNo)
+                            ]);
+                        }
                     },{
                         title:'注册时间',
-                        key:"time"
+                        key:"time",
+                        render: (h, params) => {
+                            return h('div', [
+                                h('span', this.$moment(params.row.time).format('YYYY-MM-DD'))
+                            ]);
+                        }
                     },
                     {
                         title: '操作',
@@ -211,156 +229,15 @@
                         }
                     }
                 ],
-                modal:false,
-                Listdata: [],
-                total:0,
-                page:1,
-                rows:10,
-                name:'',
-                id:'',
-                ids:[]
             }
-        },
-        methods: {
-        //获取数据
-            getData(){
-                this.axios({
-                    url:'http://localhost:3000/users/list',
-                    method:'post',
-                    data:{
-                        page: this.page,
-                        rows: this.rows,
-                        name: this.name,
-                    }
-                }).then(res=>{
-                    // console.log(res.data);
-                    // console.log(this.total);
-                    this.total=res.data.total;
-                    this.Listdata=res.data.rows
-                });
-            },
-            pageChange(page){//页数变化
-                this.page = page;
-                this.getData();
-            },
-            pagesizeChange(rows){//每页显示条数
-                this.rows=rows;
-                this.getData();
-            },
-        //添加数据
-            addData(){
-                this.modal=true;
-            },
-        //表单提交验证
-            handleSubmit (name) {
-                this.$refs[name].validate((valid) => {
-                    if (valid) {
-                        if(this.formValidate._id && this.formValidate._id.trim().length>0){
-                        //修改数据
-                            this.axios({
-                                url   : `http://localhost:3000/users/${this.formValidate._id}`,
-                                method: 'put',
-                                data  : this.formValidate
-                            }).then(res=>{
-                                this.$Message.success('修改数据成功!');
-                                this.modal = false;
-                                this.getData();
-                            })
-                        }else{
-                        //添加数据
-                            this.axios({
-                                url   : `http://localhost:3000/users`,
-                                method: 'post',
-                                data  : this.formValidate
-                            }).then(res=>{
-                                this.$Message.success('添加数据成功!');
-                                this.modal = false;
-                                this.getData();
-                            });
-                            this.$Message.success('提交成功!');
-                        }
-                    } else {
-                        this.$Message.error('提交失败!');
-                    }
-                })
-            },
-        //重置清除表单
-            handleReset (name) {
-                this.$refs[name].resetFields();
-            },
-        //修改数据
-            updateData(id){
-                this.axios({
-                    url   : `http://localhost:3000/users/${id}`,
-                    method: 'get',
-                }).then(res=>{
-                    this.formValidate = res.data;
-                    this.modal = true;
-                })
-            },
-        //删除单条数据
-            removeData(id){
-                this.$Modal.confirm({
-                    title:"确认对话框",
-                    content:'<p>你确定删除吗？</p>',
-                    onOk: () => {
-                        this.axios({
-                            url:`http://localhost:3000/users/${id}`,
-                            method:'delete',
-                            data:{
-                                id:id
-                            }
-                        }).then(res=>{
-                            this.getData();
-                            this.$Message.info('删除成功');
-                        })
-                    },
-                    /* onCancel: () => {
-                        this.$Message.info('取消成功');
-                    } *///确认对话框取消框回调
-                })
-            },
-        //
-            onSelectionChange(selection){
-                var selectionLen = selection.length;
-                if(selectionLen>0){
-                    for(let i=0;i<selectionLen;i++){
-                        this.ids.push(selection[i]._id);
-                    }
-                }
-            },
-        //删除多条数局
-            removesData(){
-                this.$Modal.confirm({
-                    title:"确认对话框",
-                    content:'<p>你确定删除吗？</p>',
-                    onOk: () => {
-                        this.axios({
-                            url:`http://localhost:3000/users/removes`,
-                            method:'post',
-                            data:{
-                                ids:this.ids.toString()
-                            }
-                        }).then(res=>{
-                            this.getData();
-                            this.$Message.info('删除成功');
-                        })
-                    }
-                })
-            },
-        //搜索数据
-            searchData(){
-                this.getData();
-            }
-            /* ok () {
-                this.$Message.info('Clicked ok');
-            },
-            cancel () {
-                this.$Message.info('Clicked cancel');
-            }, *///确认对话框确认和取消回调
-        },
-        mounted() {
-            this.getData();
         },
     }
 </script>
+<style>
+.ivu-table-tbody td .ivu-table-cell span{
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    overflow:hidden;
+ }
+ 
+</style>

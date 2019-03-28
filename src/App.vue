@@ -34,8 +34,8 @@
                             </template>
                             <MenuItem name="1-1"><router-link to='/user'>用户管理</router-link></MenuItem>
                             <MenuItem name="1-2"><router-link to='/news'>新闻管理</router-link></MenuItem>
-                            <MenuItem name="1-3"><router-link to='/product'>产品管理</router-link></MenuItem>
                             <MenuItem name="1-4"><router-link to='/order'>订单管理</router-link></MenuItem>
+                            <MenuItem name="1-5"><router-link to='/cate'>分类管理</router-link></MenuItem>
                         </Submenu>
                         <Submenu name="2">
                             <template slot="title">

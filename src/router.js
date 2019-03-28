@@ -20,6 +20,16 @@ export default new Router({
       path: '/news',
       name: 'news',
       component: () => import('./views/news.vue')
+    },
+    {
+      path: '/order',
+      name: 'order',
+      component: () => import('./views/order.vue')
+    },
+    {
+      path: '/cate',
+      name: 'cate',
+      component: () => import('./views/cate.vue')
     }
   ]
 })

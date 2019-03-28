@@ -17,19 +17,33 @@
                 <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
                     <Row>
                         <Col span="14">
-                            <FormItem label="新闻标题" prop="title">
-                                <Input v-model="formValidate.title" placeholder="新闻标题"></Input>
+                            <FormItem label="订单名称" prop="ordername">
+                                <Input v-model="formValidate.ordername" placeholder="订单名称"></Input>
                             </FormItem>
                         </Col>
                         <Col span="2" style="text-align: center"></Col>
                         <Col span="8">
-                            <FormItem label="撰稿人" prop="author">
-                                <Input v-model="formValidate.author" placeholder="撰稿人"></Input>
+                            <FormItem label="订单详情" prop="details">
+                                <Input v-model="formValidate.details" placeholder="订单详情"></Input>
                             </FormItem>
                         </Col>
                     </Row>
-                    <FormItem label="关键词" prop="keyWords">
-                        <Input v-model="formValidate.keyWords" placeholder="关键词"></Input>
+                    <Row>
+                        <Col span="11">
+                            <FormItem label="开始时间" prop="sdate">
+                                <Input v-model="formValidate.sdate" placeholder="开始时间" type="date"></Input>
+                            </FormItem>
+                        </Col>
+                        <Col span="2" style="text-align: center"></Col>
+                        <Col span="11">
+                            <FormItem label="预计完成" prop="sdate">
+                                <Input v-model="formValidate.sdate" placeholder="预计完成" type="date"></Input>
+                            </FormItem>
+                        </Col>
+                    </Row>
+                    <FormItem label="订单进度" prop="progress">
+                        <Progress :percent="parseInt(formValidate.progress)" />
+                        <Input v-model="formValidate.progress" placeholder="订单进度" number></Input>
                     </FormItem>
                     <FormItem>
                         <Button type="primary" @click="handleSubmit('formValidate')">提交</Button>
@@ -49,23 +63,31 @@
         mixins:[Base],
         data () {
             return{
-                module: 'news',
+                module: 'order',
                 treeData:[],
                 formValidate: {
                     newsId:null,
-                    title:'',
-                    author:'',
-                    keyWords:''
+                    ordername:'',
+                    details:'',
+                    sdate:'',
+                    fdate:'',
+                    progress:0,
                 },
                 ruleValidate:{
-                    title: [
+                    ordername: [
                         { required: true, message: '不能为空', trigger: 'blur' }
                     ],
-                    author: [
+                    details: [
                         { required: true, message: '不能为空', trigger: 'blur' }
                     ],
-                    keyWords: [
+                    sdate: [
                         { required: true, message: '不能为空', trigger: 'blur' }
+                    ],
+                    fdate: [
+                        { required: true, message: '不能为空', trigger: 'blur' }
+                    ],
+                    progress: [
+                        { required: true, type:'number', message: '不能为空', trigger: 'blur' }
                     ],
                 },
                 columns: [
@@ -75,16 +97,43 @@
                         align: 'center'
                     },
                     {
-                        title: '新闻标题',
-                        key: 'title'
+                        title: '订单名称',
+                        key: 'ordername'
                     },
                     {
-                        title: '撰稿人',
-                        key: 'author'
+                        title: '订单详情',
+                        key: 'details'
                     },
                     {
-                        title: '关键词',
-                        key: 'keyWords'
+                        title: '开始时间',
+                        key: 'sdate',
+                        render: (h, params) => {
+                            return h('div', [
+                                h('span', this.$moment(params.row.sdate).format('YYYY-MM-DD'))
+                            ]);
+                        }
+                    },
+                    {
+                        title: '预计完成',
+                        key: 'fdate',
+                        render: (h, params) => {
+                            return h('div', [
+                                h('span', this.$moment(params.row.fdate).format('YYYY-MM-DD'))
+                            ]);
+                        }
+                    },
+                    {
+                        title: '订单进度',
+                        key: 'progress',
+                        render: (h, params) => {
+                            return h('div', [
+                                h('Progress', {
+                                    props:{
+                                       percent:parseInt(params.row.progress)
+                                    }
+                                })
+                            ]);
+                        }
                     },
                     {
                         title: '操作',
@@ -125,16 +174,16 @@
             }
         },
         methods: {
-        //得到新闻分类列表
+        //得产品分类列表
             getTreeData(){
                 this.axios({
-                    url   : `http://localhost:3000/cate/list/1`,
+                    url   : `http://localhost:3000/cate/list/2`,
                     method: 'post'
                 }).then(res=>{
                     this.treeData = res.data;
                 })
             },
-            //添加新闻，需选择节点
+            //添加产品，需选择节点
             addData(){
                 var saveData=this.formValidate.newsId;
                 this.$data.formValidate=this.$options.data().formValidate;

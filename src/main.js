@@ -9,7 +9,8 @@ import VueAxios from 'vue-axios'
 
 Vue.use(VueAxios, axios);
 Vue.use(iView);
-Vue.config.productionTip = false
+Vue.use(require('vue-moment'));
+Vue.config.productionTip = false;
 
 new Vue({
   router,
