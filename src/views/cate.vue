@@ -7,8 +7,7 @@
         </Tabs>
         <Dropdown transfer ref="contextMenu" trigger="click" style="display: none;margin-left: 20px" placement="right-start" @on-click="menuclick">
             <DropdownMenu slot="list">
-                <DropdownItem name="addparentnode">新增主节点</DropdownItem>
-                <DropdownItem name="addnode">新增子节点</DropdownItem>
+                <DropdownItem name="addnode">新增节点</DropdownItem>
                 <DropdownItem name="upnode">修改</DropdownItem>
                 <DropdownItem name="removenode" style="color: #ed4014">删除</DropdownItem>
             </DropdownMenu>
@@ -52,6 +51,14 @@ export default{
         }
     },
     methods: {
+        getdata(){
+            this.axios({
+                url:`http://localhost:3000/cate/list/${this.type}`,
+                method:'post'
+            }).then(res=>{
+                this.treedata=res.data
+            })
+        },
         changeTab(type){
             this.axios({
                 url   : `http://localhost:3000/cate/list/${type}`,
@@ -77,29 +84,94 @@ export default{
         },
         //
         menuclick(name){
-            if(name==="addparentnode"){
-                this.modaltitle="添加主节点";
-                console.log(this.formValidate.parentId);
-                this.modal=true;
-            }else if(name==="addnode"){
-                this.modaltitle="添加子节点";
-
+            if(name==="addnode"){
+                this.modaltitle="添加节点";
                 this.modal=true;
             }else if(name==="upnode"){
                 this.modaltitle="修改";
-
+                this.axios({
+                    url:`http://localhost:3000/cate/${this.formValidate.parentId}`,
+                    method:'get'
+                }).then(res=>{
+                    var data=JSON.parse(JSON.stringify(res.data));
+                    data.title=data.text;
+                    delete data.text
+                    this.formValidate=data;
+                })
                 this.modal=true;
 
             }else if(name==="removenode"){
+                var removedata=this.remove(this.$refs.tree.getSelectedNodes()[0],[]).join(',');
+                console.log(this.type,removedata);
                 this.$Modal.confirm({
                    title:"删除数据节点",
                    content:"删除此节点的同时下面的子节点将都被删除，确定要删除吗",
                    onOk:()=>{
-                    console.log('ok')
+                        this.axios({
+                            url:`http://localhost:3000/cate/${removedata}`,
+                            method:'delete',
+                            data:{
+                                id:removedata
+                            }
+                        }).then(res=>{
+                            this.$Message.success('删除成功！');
+                            this.getdata();
+                            this.modal=false;
+                        })
                    }
                 })
 
             }
+        },
+        // 添加修改对话框提交和重置
+        handleSubmit (name) {
+            this.$refs[name].validate((valid) => {
+                if (valid) {
+                    if(this.formValidate._id && this.formValidate._id.length>0){
+                        this.axios({
+                            url:`http://localhost:3000/cate/${this.formValidate._id}`,
+                            method:'put',
+                            data:this.formValidate
+                        }).then(res=>{
+                            this.$Message.success('修改成功！');
+                            this.getdata();
+                            this.modal=false;
+                        })
+                    }else{
+                        this.axios({
+                            url:`http://localhost:3000/cate`,
+                            method:'post',
+                            data:this.formValidate
+                        }).then(res=>{
+                            this.$Message.success('提交成功！');
+                            this.getdata();
+                            this.modal=false;
+                        })
+                    }
+
+                } else {
+                    this.$Message.error('提交失败！');
+                }
+            })
+             this.formValidate=this.$options.data().formValidate;
+        },
+        handleReset (name) {
+            this.$refs[name].resetFields();
+        },
+        closemodal(res){
+            if(!res){
+                this.formValidate=this.$options.data().formValidate;
+            }
+        },
+
+        remove(obj,data){
+            data.push(obj._id);
+            if(obj.children){
+                for(var i in obj.children){
+                    this.remove(obj.children[i],data);
+                }
+            }
+            return data;
         }
     },
     /* mounted() {
